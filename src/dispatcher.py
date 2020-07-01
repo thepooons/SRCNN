@@ -1,5 +1,5 @@
-from models import SRCNN
-from datasets import T91Set
+from .models import SRCNN
+from .datasets import T91Set
 import torch
 
 model = SRCNN(

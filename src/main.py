@@ -1,6 +1,6 @@
-from datasets import T91Set
-from dispatcher import model, create_datasets
-from train import train_loop
+from .datasets import T91Set
+from .dispatcher import model, create_datasets
+from .train import train_loop
 import torch
 import torch.nn as nn
 
