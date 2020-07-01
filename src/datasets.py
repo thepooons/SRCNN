@@ -28,7 +28,7 @@ class T91Set(torch.utils.data.Dataset):
     def __getitem__(self, index):
         
         if self.isTest:
-            image_path = self.image_dir + str(self.image_list[index])
+            image_path = self.image_dir + '/' + str(self.image_list[index])
             image = Image.open(image_path)
             image, _, _ = image.convert('YCbCr').split()
             image = self.test_transforms(image)
@@ -36,9 +36,9 @@ class T91Set(torch.utils.data.Dataset):
             LR = self.PIL_transform(image)
             LR = LR.resize((self.Y_size, self.Y_size), Image.BICUBIC)
             LR = self.transforms(LR)
-            return LR
+            return LR, str(self.image_list[index])
         
-        image_path = self.image_dir + str(self.image_list[index])
+        image_path = self.image_dir + '/' + str(self.image_list[index])
         image = Image.open(image_path)
         image, _, _ = image.convert('YCbCr').split()
         image = self.transforms(image)

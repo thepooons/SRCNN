@@ -1,8 +1,9 @@
 import os
 from tqdm import tqdm
 import torch
+import matplotlib.image as img_plt
 
-def train(
+def train_loop(
     epochs,
     model,
     device,
@@ -10,10 +11,12 @@ def train(
     val_loader,
     criterion,
     optimizer,
-    test_loader
+    test_loader,
+    enhanced_image_path,
+    verbose
 ):
+    os.system('mkdir ' + enhanced_image_path)
     os.system('mkdir models')
-    os.system('mkdir big_goose_pics')
     model = model.to(device)
     criterion = criterion.to(device)
     for epoch in tqdm(range(epochs)):
@@ -28,8 +31,6 @@ def train(
             optimizer.zero_grad()
 
             z = model(x)
-    #             print(z.dtype)
-    #             print(y.dtype)
             loss = criterion(z, y)
             loss.backward()
             optimizer.step()
@@ -38,16 +39,14 @@ def train(
             torch.cuda.empty_cache()
 
         # print validation image and model predictions 
-        if epoch%50 == 0:
+        verbose = int(verbose)
+        if epoch%verbose == 0:
             with torch.no_grad():
                 model.eval()
                 
-                for goose in test_loader:
-                    goose = goose.to(device)                         # LR
-                    big_goose = model(goose).detach().cpu().numpy()  # HR
-                    print(big_goose.shape)
-                    plt.imshow(big_goose.squeeze().squeeze(), cmap='Greys_r')
-                    plt.show()
+                for image, image_name in test_loader:
+                    image = image.to(device)                         # LR
+                    big_image = model(image).detach().cpu().numpy()  # HR
+                    img_plt.imsave(enhanced_image_path + '/enh_' + str(image_name[0])[:-4] + '_' + str(epoch) + '.png', big_image.squeeze().squeeze(), cmap='Greys_r')              
                 print('=' * 20, 'EPOCH LOSS', epoch_loss, '=' * 20)
                 torch.save(model.state_dict(), './models/ckpt_' + str(epoch) + '.pth')  
-                img_plt.imsave('./big_goose_pics/big_goose_' + str(epoch) + '.png', big_goose.squeeze().squeeze(), cmap='Greys_r')              
